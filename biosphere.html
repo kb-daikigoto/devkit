@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ÆTHER — 進化するいのちのスープ</title>
+<style>
+  :root{
+    --bg:#05060a; --ink:#e7ecf5; --dim:#7d8aa3; --line:#1b2233;
+    --accent:#5ad1ff; --accent2:#ff7bd5; --warn:#ffd166; --good:#7CFFB2;
+    --glass:rgba(18,24,38,.62);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;
+    font-family:-apple-system,"SF Pro Text","Helvetica Neue","Hiragino Kaku Gothic ProN",sans-serif;
+    color:var(--ink);-webkit-font-smoothing:antialiased;cursor:crosshair}
+  #stage{position:fixed;inset:0;display:block}
+  /* ---------- HUD ---------- */
+  .panel{position:fixed;background:var(--glass);backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(120,150,200,.14);
+    border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.55);user-select:none}
+  #hud{top:18px;left:18px;width:308px;padding:18px 18px 16px}
+  .brand{display:flex;align-items:baseline;gap:10px;margin-bottom:2px}
+  .brand h1{font-size:21px;letter-spacing:.14em;margin:0;font-weight:700;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand .v{font:11px/1 ui-monospace,Menlo,monospace;color:var(--dim);letter-spacing:.1em}
+  .tag{font-size:11px;color:var(--dim);letter-spacing:.04em;margin:0 0 14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+  .stat{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:11px;padding:9px 11px}
+  .stat .k{font:10px/1 ui-monospace,monospace;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+  .stat .n{font:600 21px/1.15 ui-monospace,monospace;margin-top:5px;font-variant-numeric:tabular-nums}
+  .stat .n small{font-size:11px;color:var(--dim);font-weight:400}
+  .ctrl{margin:13px 0 0}
+  .ctrl label{display:flex;justify-content:space-between;font:11px/1 ui-monospace,monospace;color:var(--dim);
+    letter-spacing:.06em;margin-bottom:7px}
+  .ctrl label b{color:var(--ink);font-weight:600}
+  input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:4px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));outline:none;opacity:.9}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+    background:#fff;cursor:pointer;box-shadow:0 0 0 4px rgba(90,209,255,.22),0 2px 6px rgba(0,0,0,.4)}
+  .btns{display:flex;gap:8px;margin-top:16px}
+  button{flex:1;padding:9px 0;border-radius:10px;border:1px solid rgba(120,150,200,.2);
+    background:rgba(255,255,255,.04);color:var(--ink);font:600 12px/1 inherit;letter-spacing:.04em;
+    cursor:pointer;transition:.15s;backdrop-filter:blur(4px)}
+  button:hover{background:rgba(90,209,255,.16);border-color:rgba(90,209,255,.4);transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+  button.pri{background:linear-gradient(90deg,rgba(90,209,255,.28),rgba(255,123,213,.28));border-color:transparent}
+  /* ---------- chart ---------- */
+  #charts{bottom:18px;left:18px;width:308px;padding:14px 16px 12px}
+  #charts .ttl{font:10px/1 ui-monospace,monospace;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;
+    display:flex;justify-content:space-between;margin-bottom:9px}
+  #chart{width:100%;height:96px;display:block;border-radius:8px}
+  .legend{display:flex;gap:14px;margin-top:9px;font:10px/1 ui-monospace,monospace;color:var(--dim)}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  /* ---------- inspector ---------- */
+  #insp{top:18px;right:18px;width:236px;padding:16px;opacity:0;transform:translateY(-6px);
+    transition:.25s;pointer-events:none}
+  #insp.on{opacity:1;transform:none}
+  #insp .ttl{font:10px/1 ui-monospace,monospace;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:11px}
+  .irow{display:flex;justify-content:space-between;font:11px/1.1 ui-monospace,monospace;padding:5px 0;border-bottom:1px solid var(--line)}
+  .irow:last-child{border:0}
+  .irow .l{color:var(--dim)} .irow .r{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+  #brainpad{width:100%;height:84px;margin-top:11px;border-radius:8px;background:rgba(0,0,0,.25)}
+  /* ---------- hint ---------- */
+  #hint{bottom:18px;right:18px;font:11px/1.6 ui-monospace,monospace;color:var(--dim);text-align:right;
+    text-shadow:0 1px 6px #000;letter-spacing:.03em}
+  #hint b{color:var(--accent)}
+  .pulse{animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @media (max-width:760px){#charts,#insp{display:none}#hud{width:270px}}
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+
+<div id="hud" class="panel">
+  <div class="brand"><h1>ÆTHER</h1><span class="v">v1.0</span></div>
+  <p class="tag">脳を持つ生命が、自然選択で進化するスープ</p>
+  <div class="grid">
+    <div class="stat"><div class="k">個体数</div><div class="n" id="s-pop">0</div></div>
+    <div class="stat"><div class="k">世代</div><div class="n" id="s-gen">0</div></div>
+    <div class="stat"><div class="k">最長寿命</div><div class="n" id="s-age">0<small>s</small></div></div>
+    <div class="stat"><div class="k">経過</div><div class="n" id="s-time">0<small>s</small></div></div>
+  </div>
+  <div class="ctrl"><label>時間の速さ <b id="v-speed">1.0×</b></label>
+    <input type="range" id="r-speed" min="0.25" max="4" step="0.25" value="1"></div>
+  <div class="ctrl"><label>食べ物の量 <b id="v-food">ふつう</b></label>
+    <input type="range" id="r-food" min="0" max="100" step="1" value="42"></div>
+  <div class="ctrl"><label>突然変異の強さ <b id="v-mut">0.18</b></label>
+    <input type="range" id="r-mut" min="0" max="0.6" step="0.01" value="0.18"></div>
+  <div class="btns">
+    <button id="b-pause" class="pri">⏸ 一時停止</button>
+    <button id="b-rain">☄ 餌を撒く</button>
+    <button id="b-reset">↺ リセット</button>
+  </div>
+</div>
+
+<div id="charts" class="panel">
+  <div class="ttl"><span>進化のあしあと</span><span id="c-now"></span></div>
+  <canvas id="chart"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i>個体数</span>
+    <span><i style="background:var(--warn)"></i>平均スピード遺伝子</span>
+    <span><i style="background:var(--good)"></i>平均感覚範囲</span>
+  </div>
+</div>
+
+<div id="insp" class="panel">
+  <div class="ttl">個体カルテ</div>
+  <div class="irow"><span class="l">系統(色相)</span><span class="r" id="i-hue">—</span></div>
+  <div class="irow"><span class="l">年齢</span><span class="r" id="i-age">—</span></div>
+  <div class="irow"><span class="l">エネルギー</span><span class="r" id="i-energy">—</span></div>
+  <div class="irow"><span class="l">子孫の数</span><span class="r" id="i-kids">—</span></div>
+  <div class="irow"><span class="l">最高速度</span><span class="r" id="i-speed">—</span></div>
+  <div class="irow"><span class="l">感覚範囲</span><span class="r" id="i-sense">—</span></div>
+  <canvas id="brainpad"></canvas>
+</div>
+
+<div id="hint" class="pulse">
+  <b>クリック/ドラッグ</b>で餌をまく ・ <b>個体をクリック</b>で観察 ・ <b>Space</b>で停止
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   ÆTHER — neuro-evolutionary life soup.
+   Each creature carries a tiny feed-forward neural net; the
+   weights ARE its genome. No behaviour is hand-coded: foraging,
+   wandering and fleeing all emerge from selection + mutation.
+   ============================================================ */
+
+const TAU = Math.PI * 2;
+const clamp = (x,a,b)=> x<a?a:x>b?b:x;
+const rand  = (a=1,b=0)=> b + Math.random()*(a-b);
+const lerp  = (a,b,t)=> a+(b-a)*t;
+const tanh  = Math.tanh;
+
+/* ---- Brain: 7 inputs → 8 hidden(tanh) → 3 outputs(tanh) ---- */
+const NI=7, NH=8, NO=3;
+class Brain{
+  constructor(w){ this.w = w || Brain.random(); }
+  static get size(){ return NI*NH + NH + NH*NO + NO; }
+  static random(){ const a=new Float32Array(Brain.size); for(let i=0;i<a.length;i++) a[i]=rand(1,-1); return a; }
+  think(inp){
+    const w=this.w; let p=0;
+    const h=new Float32Array(NH);
+    for(let j=0;j<NH;j++){ let s=0; for(let i=0;i<NI;i++) s+=inp[i]*w[p++]; s+=w[p++]; h[j]=tanh(s); }
+    const o=new Float32Array(NO);
+    for(let k=0;k<NO;k++){ let s=0; for(let j=0;j<NH;j++) s+=h[j]*w[p++]; s+=w[p++]; o[k]=tanh(s); }
+    return o;
+  }
+  mutate(rate){
+    const a=new Float32Array(this.w);
+    for(let i=0;i<a.length;i++) if(Math.random()<0.85) a[i]=clamp(a[i]+ (Math.random()*2-1)*rate, -4,4);
+    return new Brain(a);
+  }
+}
+
+/* ---- Genome: a few morphological genes, also mutable ---- */
+function childGenes(g,rate){
+  const m=(v,lo,hi)=> clamp(v + (Math.random()*2-1)*rate*(hi-lo), lo, hi);
+  return {
+    hue:    (g.hue + (Math.random()*2-1)*rate*40 + 360)%360,
+    maxSpd: m(g.maxSpd, 0.8, 3.6),
+    sense:  m(g.sense, 40, 230),
+    size:   m(g.size, 2.4, 6.2),
+    metab:  m(g.metab, 0.6, 1.7),
+  };
+}
+function randomGenes(){
+  return { hue:rand(360), maxSpd:rand(3.6,0.8), sense:rand(230,40), size:rand(6.2,2.4), metab:rand(1.7,0.6) };
+}
+
+let SEQ=0;
+class Creature{
+  constructor(x,y,brain,genes,gen){
+    this.id=++SEQ; this.x=x; this.y=y;
+    this.vx=rand(.6,-.6); this.vy=rand(.6,-.6);
+    this.heading=rand(TAU);
+    this.brain=brain; this.g=genes; this.gen=gen|0;
+    this.energy=rand(120,80); this.age=0; this.kids=0; this.alive=true;
+    this.flash=0;
+  }
+  step(W,dt){
+    const g=this.g;
+    // --- sense nearest food & nearest other creature ---
+    let fd=g.sense*g.sense, fdx=0,fdy=0, sawFood=0;
+    const food=W.foodGrid.near(this.x,this.y,g.sense);
+    for(const f of food){ const dx=f.x-this.x, dy=f.y-this.y, d=dx*dx+dy*dy;
+      if(d<fd){ fd=d; fdx=dx; fdy=dy; sawFood=1; } }
+    let cd=g.sense*g.sense, cdx=0,cdy=0, sawC=0;
+    for(const o of W.creatures){ if(o===this||!o.alive) continue;
+      const dx=o.x-this.x, dy=o.y-this.y, d=dx*dx+dy*dy;
+      if(d<cd){ cd=d; cdx=dx; cdy=dy; sawC=1; } }
+
+    const hx=Math.cos(this.heading), hy=Math.sin(this.heading);
+    const rel=(dx,dy,seen)=>{ if(!seen) return [0,0];
+      const len=Math.hypot(dx,dy)||1, nx=dx/len, ny=dy/len;
+      const fwd=nx*hx+ny*hy;            // -1..1  how much ahead
+      const side=nx*(-hy)+ny*hx;        // -1..1  left/right
+      const prox=1-clamp(len/g.sense,0,1);
+      return [fwd*prox, side*prox];
+    };
+    const [ff,fs]=rel(fdx,fdy,sawFood);
+    const [cf,cs]=rel(cdx,cdy,sawC);
+    const inp=[ ff, fs, cf, cs, clamp(this.energy/200,0,1)*2-1,
+                clamp(Math.hypot(this.vx,this.vy)/g.maxSpd,0,1)*2-1, 1 ];
+
+    // --- think ---
+    const [turn, thrust, _b] = this.brain.think(inp);
+    this.heading += turn*0.22*dt;
+    const acc = (thrust*0.5+0.5)*0.16*dt;        // 0..thrust
+    this.vx += Math.cos(this.heading)*acc;
+    this.vy += Math.sin(this.heading)*acc;
+
+    // --- physics ---
+    const sp=Math.hypot(this.vx,this.vy), mx=g.maxSpd;
+    if(sp>mx){ this.vx*=mx/sp; this.vy*=mx/sp; }
+    this.vx*=0.96; this.vy*=0.96;
+    this.x+=this.vx*dt; this.y+=this.vy*dt;
+    // wrap world (toroidal)
+    if(this.x<0)this.x+=W.w; else if(this.x>W.w)this.x-=W.w;
+    if(this.y<0)this.y+=W.h; else if(this.y>W.h)this.y-=W.h;
+
+    // --- metabolism: living + moving costs energy ---
+    const move=Math.hypot(this.vx,this.vy);
+    this.energy -= (0.06*g.metab + move*move*0.02*g.size*0.3 + g.sense*0.0006) * dt;
+    this.age += dt/60;
+
+    // --- eat ---
+    const eaten=W.foodGrid.eat(this.x,this.y, g.size+5);
+    if(eaten){ this.energy=Math.min(this.energy+34*eaten, 260); this.flash=1; W.eats+=eaten; }
+
+    // --- reproduce ---
+    if(this.energy>200 && W.creatures.length<W.cap){
+      this.energy*=0.5;
+      const cg=childGenes(g, W.mut);
+      const cb=this.brain.mutate(W.mut*0.9);
+      const ang=rand(TAU), r=g.size+6;
+      const c=new Creature(this.x+Math.cos(ang)*r, this.y+Math.sin(ang)*r, cb, cg, this.gen+1);
+      c.energy=this.energy; this.kids++;
+      W.born.push(c);
+      W.maxGen=Math.max(W.maxGen,c.gen);
+    }
+    // --- death ---
+    if(this.energy<=0 || this.age>90){ this.alive=false; }
+    if(this.flash>0) this.flash-=0.08*dt;
+  }
+}
+
+/* ---- light spatial hash so food lookups stay cheap ---- */
+class FoodGrid{
+  constructor(w,h,cell){ this.w=w;this.h=h;this.cell=cell;
+    this.cols=Math.ceil(w/cell); this.rows=Math.ceil(h/cell);
+    this.bins=Array.from({length:this.cols*this.rows},()=>[]); this.all=[]; }
+  idx(x,y){ const c=clamp(x/this.cell|0,0,this.cols-1), r=clamp(y/this.cell|0,0,this.rows-1); return r*this.cols+c; }
+  add(x,y){ const f={x,y}; this.all.push(f); this.bins[this.idx(x,y)].push(f); }
+  near(x,y,rad){
+    const out=[]; const c0=clamp((x-rad)/this.cell|0,0,this.cols-1), c1=clamp((x+rad)/this.cell|0,0,this.cols-1);
+    const r0=clamp((y-rad)/this.cell|0,0,this.rows-1), r1=clamp((y+rad)/this.cell|0,0,this.rows-1);
+    for(let r=r0;r<=r1;r++) for(let c=c0;c<=c1;c++) { const b=this.bins[r*this.cols+c]; for(const f of b) out.push(f); }
+    return out;
+  }
+  eat(x,y,rad){
+    const r2=rad*rad; let n=0;
+    const c0=clamp((x-rad)/this.cell|0,0,this.cols-1), c1=clamp((x+rad)/this.cell|0,0,this.cols-1);
+    const r0=clamp((y-rad)/this.cell|0,0,this.rows-1), r1=clamp((y+rad)/this.cell|0,0,this.rows-1);
+    for(let r=r0;r<=r1;r++) for(let c=c0;c<=c1;c++){
+      const b=this.bins[r*this.cols+c];
+      for(let i=b.length-1;i>=0;i--){ const f=b[i]; const dx=f.x-x,dy=f.y-y;
+        if(dx*dx+dy*dy<r2){ f.dead=true; b.splice(i,1); n++; } }
+    }
+    if(n) this.all=this.all.filter(f=>!f.dead);
+    return n;
+  }
+  get count(){ return this.all.length; }
+}
+
+/* =================== WORLD =================== */
+class World{
+  constructor(w,h){ this.resize(w,h); this.reset(); }
+  resize(w,h){ this.w=w; this.h=h; }
+  reset(){
+    this.creatures=[]; this.born=[]; this.foodGrid=new FoodGrid(this.w,this.h,90);
+    this.t=0; this.maxGen=0; this.eats=0; this.cap=320;
+    this.foodRate=0.42; this.mut=0.18; this.speed=1;
+    for(let i=0;i<70;i++) this.creatures.push(
+      new Creature(rand(this.w),rand(this.h), new Brain(), randomGenes(), 0));
+    for(let i=0;i<340;i++) this.foodGrid.add(rand(this.w),rand(this.h));
+    this.history=[]; this.histT=0;
+  }
+  spawnFood(x,y,n,spread){ for(let i=0;i<n;i++)
+    this.foodGrid.add(clamp(x+rand(spread,-spread),0,this.w), clamp(y+rand(spread,-spread),0,this.h)); }
+  step(dt){
+    this.t+=dt/60;
+    // grow food
+    const target = 120 + this.foodRate*900;
+    if(this.foodGrid.count<target && Math.random()<this.foodRate*1.4)
+      this.spawnFood(rand(this.w),rand(this.h), 1+ (this.foodRate*4|0), 30);
+    // think + move
+    for(const c of this.creatures) if(c.alive) c.step(this,dt);
+    if(this.born.length){ for(const b of this.born) this.creatures.push(b); this.born.length=0; }
+    // cull dead
+    if(this.creatures.some(c=>!c.alive)) this.creatures=this.creatures.filter(c=>c.alive);
+    // emergency reseed (extinction safety net) so the show never ends
+    if(this.creatures.length<6){
+      for(let i=0;i<14;i++) this.creatures.push(
+        new Creature(rand(this.w),rand(this.h), new Brain(), randomGenes(), this.maxGen));
+    }
+    // sample history
+    this.histT+=dt; if(this.histT>26){ this.histT=0; this.sample(); }
+  }
+  sample(){
+    let sp=0,se=0,age=0,n=this.creatures.length||1;
+    for(const c of this.creatures){ sp+=c.g.maxSpd; se+=c.g.sense; if(c.age>age)age=c.age; }
+    this.history.push({pop:this.creatures.length, spd:sp/n, sense:se/n, age});
+    if(this.history.length>220) this.history.shift();
+    this.maxAgeNow=age;
+  }
+}
+
+/* =================== RENDER + APP =================== */
+const cv=document.getElementById('stage'), ctx=cv.getContext('2d');
+const chartC=document.getElementById('chart'), cctx=chartC.getContext('2d');
+const bpad=document.getElementById('brainpad'), bctx=bpad.getContext('2d');
+let DPR=Math.min(devicePixelRatio||1,2), W;
+let paused=false, selected=null;
+
+function fit(){
+  DPR=Math.min(devicePixelRatio||1,2);
+  cv.width=innerWidth*DPR; cv.height=innerHeight*DPR;
+  cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  if(!W) W=new World(innerWidth,innerHeight); else W.resize(innerWidth,innerHeight);
+  sizeCanvas(chartC,cctx); sizeCanvas(bpad,bctx);
+}
+function sizeCanvas(c,x){ const r=c.getBoundingClientRect();
+  c.width=r.width*DPR; c.height=r.height*DPR; x.setTransform(DPR,0,0,DPR,0,0); }
+
+/* --- creature drawing --- */
+function drawCreature(c){
+  const sel = c===selected;
+  const sp=Math.hypot(c.vx,c.vy);
+  const a=c.heading;
+  const s=c.g.size + (c.flash>0?c.flash*2:0);
+  const light = clamp(40+c.energy*0.18, 36, 74);
+  const col=`hsl(${c.g.hue|0} 85% ${light}%)`;
+  // glow
+  ctx.save();
+  ctx.translate(c.x,c.y);
+  if(sel){ ctx.beginPath(); ctx.arc(0,0,c.g.sense,0,TAU);
+    ctx.strokeStyle=`hsla(${c.g.hue|0} 90% 70% / .18)`; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,0,s+7,0,TAU); ctx.strokeStyle='#fff'; ctx.lineWidth=1.4; ctx.stroke(); }
+  ctx.rotate(a);
+  ctx.shadowColor=col; ctx.shadowBlur=sel?22:Math.min(14,4+sp*5);
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.moveTo(s*1.7,0); ctx.lineTo(-s,s*0.85); ctx.lineTo(-s*0.4,0); ctx.lineTo(-s,-s*0.85);
+  ctx.closePath(); ctx.fill();
+  // eye-spot
+  ctx.shadowBlur=0; ctx.fillStyle=`hsl(${c.g.hue|0} 90% 92%)`;
+  ctx.beginPath(); ctx.arc(s*0.5,0,Math.max(.9,s*0.28),0,TAU); ctx.fill();
+  ctx.restore();
+}
+
+function render(){
+  // motion-trail fade
+  ctx.fillStyle='rgba(5,6,10,0.34)';
+  ctx.fillRect(0,0,W.w,W.h);
+  // food
+  ctx.save(); ctx.shadowColor='rgba(120,255,190,.7)'; ctx.shadowBlur=6;
+  ctx.fillStyle='rgba(150,255,200,.9)';
+  for(const f of W.foodGrid.all){ ctx.beginPath(); ctx.arc(f.x,f.y,1.7,0,TAU); ctx.fill(); }
+  ctx.restore();
+  // creatures
+  for(const c of W.creatures) drawCreature(c);
+}
+
+/* --- charts --- */
+function drawChart(){
+  const w=chartC.getBoundingClientRect().width, h=chartC.getBoundingClientRect().height;
+  cctx.clearRect(0,0,w,h);
+  const H=W.history; if(H.length<2) return;
+  cctx.strokeStyle='rgba(255,255,255,.05)';
+  for(let i=0;i<4;i++){ const y=h*i/3; cctx.beginPath(); cctx.moveTo(0,y); cctx.lineTo(w,y); cctx.stroke(); }
+  const maxPop=Math.max(W.cap*0.6, ...H.map(d=>d.pop));
+  const line=(key,max,color)=>{ cctx.beginPath();
+    H.forEach((d,i)=>{ const x=w*i/(H.length-1), y=h-clamp(d[key]/max,0,1)*h*0.94-2;
+      i?cctx.lineTo(x,y):cctx.moveTo(x,y); });
+    cctx.strokeStyle=color; cctx.lineWidth=1.6; cctx.shadowColor=color; cctx.shadowBlur=6; cctx.stroke(); cctx.shadowBlur=0; };
+  line('spd',3.6,'#ffd166');
+  line('sense',230,'#7CFFB2');
+  line('pop',maxPop,'#5ad1ff');
+}
+
+/* --- brain visualiser for selected creature --- */
+function drawBrain(c){
+  const w=bpad.getBoundingClientRect().width, h=bpad.getBoundingClientRect().height;
+  bctx.clearRect(0,0,w,h);
+  if(!c){ return; }
+  const cols=[NI,NH,NO], xs=cols.map((_,i)=>lerp(16,w-16,i/(cols.length-1)));
+  const pos=cols.map((n,ci)=>Array.from({length:n},(_,j)=> [xs[ci], lerp(12,h-12,n===1?0.5:j/(n-1))]));
+  const wt=c.brain.w; let p=0;
+  // input->hidden
+  for(let j=0;j<NH;j++) for(let i=0;i<NI;i++){ const v=wt[p++]; edge(pos[0][i],pos[1][j],v); }
+  for(let j=0;j<NH;j++) p++; // skip hidden bias
+  for(let k=0;k<NO;k++) for(let j=0;j<NH;j++){ const v=wt[p++]; edge(pos[1][j],pos[2][k],v); }
+  // nodes
+  pos.flat().forEach(([x,y])=>{ bctx.beginPath(); bctx.arc(x,y,3,0,TAU);
+    bctx.fillStyle='#cfe'; bctx.fill(); });
+  function edge(a,b,v){ const t=clamp(Math.abs(v)/2,0,1);
+    bctx.strokeStyle= v>=0? `rgba(90,209,255,${0.08+t*0.5})` : `rgba(255,123,213,${0.08+t*0.5})`;
+    bctx.lineWidth=0.4+t*1.6; bctx.beginPath(); bctx.moveTo(a[0],a[1]); bctx.lineTo(b[0],b[1]); bctx.stroke(); }
+}
+
+/* =================== UI WIRING =================== */
+const $=id=>document.getElementById(id);
+const foodWord=v=> v<15?'わずか': v<40?'少なめ': v<65?'ふつう': v<85?'豊富':'過剰';
+
+function syncStats(){
+  $('s-pop').textContent=W.creatures.length;
+  $('s-gen').innerHTML=W.maxGen;
+  $('s-age').innerHTML=((W.maxAgeNow||0)).toFixed(0)+'<small>s</small>';
+  $('s-time').innerHTML=W.t.toFixed(0)+'<small>s</small>';
+  $('c-now').textContent='食事 '+W.eats;
+}
+function syncInsp(){
+  const box=$('insp');
+  if(selected && selected.alive){
+    box.classList.add('on');
+    $('i-hue').textContent=(selected.g.hue|0)+'°';
+    $('i-hue').style.color=`hsl(${selected.g.hue|0} 85% 65%)`;
+    $('i-age').textContent=selected.age.toFixed(1)+'s  (G'+selected.gen+')';
+    $('i-energy').textContent=selected.energy.toFixed(0);
+    $('i-kids').textContent=selected.kids;
+    $('i-speed').textContent=selected.g.maxSpd.toFixed(2);
+    $('i-sense').textContent=(selected.g.sense|0)+'px';
+  } else { box.classList.remove('on'); if(selected&&!selected.alive) selected=null; }
+}
+
+let acc=0, last=performance.now();
+function loop(now){
+  const real=Math.min((now-last)/16.667, 3); last=now;
+  if(!paused){ const steps=W.speed; // sub-step for high speed stability
+    const sub = steps>1.5?2:1; const dt=real*steps/sub;
+    for(let s=0;s<sub;s++) W.step(dt);
+  }
+  render();
+  drawChart();
+  if(selected) drawBrain(selected);
+  syncStats(); syncInsp();
+  requestAnimationFrame(loop);
+}
+
+/* interactions */
+let dragging=false;
+function worldXY(e){ const t=e.touches?e.touches[0]:e; return [t.clientX, t.clientY]; }
+function pick(x,y){ let best=null,bd=24*24; for(const c of W.creatures){ const dx=c.x-x,dy=c.y-y,d=dx*dx+dy*dy;
+  if(d<bd){bd=d;best=c;} } return best; }
+
+cv.addEventListener('pointerdown',e=>{ const [x,y]=worldXY(e);
+  const hit=pick(x,y);
+  if(hit){ selected=hit; }
+  else { dragging=true; selected=null; W.spawnFood(x,y,8,22); }
+});
+cv.addEventListener('pointermove',e=>{ if(dragging){ const [x,y]=worldXY(e); W.spawnFood(x,y,3,18); } });
+addEventListener('pointerup',()=>dragging=false);
+
+$('r-speed').oninput=e=>{ W.speed=+e.target.value; $('v-speed').textContent=W.speed.toFixed(2).replace(/0$/,'')+'×'; };
+$('r-food').oninput =e=>{ W.foodRate=+e.target.value/100; $('v-food').textContent=foodWord(+e.target.value); };
+$('r-mut').oninput  =e=>{ W.mut=+e.target.value; $('v-mut').textContent=W.mut.toFixed(2); };
+$('b-pause').onclick=()=>{ paused=!paused; $('b-pause').textContent=paused?'▶ 再生':'⏸ 一時停止'; $('b-pause').classList.toggle('pri',!paused); };
+$('b-rain').onclick =()=>{ for(let i=0;i<60;i++) W.spawnFood(rand(W.w),rand(W.h),1,0); };
+$('b-reset').onclick=()=>{ W.reset(); selected=null;
+  $('r-speed').value=1;$('v-speed').textContent='1×'; W.speed=1; };
+addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); $('b-pause').click(); }
+  if(e.key==='r') $('b-reset').click(); });
+addEventListener('resize',fit);
+setTimeout(()=>$('hint').classList.remove('pulse'),9000);
+
+fit();
+ctx.fillStyle='#05060a'; ctx.fillRect(0,0,W.w,W.h);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

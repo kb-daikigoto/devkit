@@ -9,15 +9,23 @@
     --bg:#0b0e14; --bg2:#0e121b; --panel:#121724; --ink:#e6ebf4; --dim:#8492ad;
     --line:#1e2536; --line2:#2a3349; --accent:#6ad0ff; --accent2:#b388ff;
     --good:#5ce6a8; --bad:#ff7a93; --warn:#ffcf6a; --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --field:#0c1019; --btn:#151c2b; --btnh:#1c2740; --navh:#141a28; --scroll:#222b3e;
+  }
+  [data-theme="light"]{
+    --bg:#f4f7fc; --bg2:#eaf0f8; --panel:#ffffff; --ink:#16233e; --dim:#5a6b86;
+    --line:#dde5f0; --line2:#cbd6e6; --accent:#0a82d8; --accent2:#7a4dff;
+    --good:#0a9b5c; --bad:#d83b58; --warn:#a9760a;
+    --field:#f7f9fd; --btn:#eef2f9; --btnh:#e2e9f5; --navh:#eef2f9; --scroll:#cdd7e6;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
+  body{transition:background .25s ease,color .25s ease}
   body{background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,"Hiragino Kaku Gothic ProN",sans-serif;
     -webkit-font-smoothing:antialiased;display:flex;overflow:hidden}
   ::selection{background:rgba(106,208,255,.28)}
   /* scrollbars */
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-thumb{background:#222b3e;border-radius:6px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px;border:2px solid var(--bg)}
   ::-webkit-scrollbar-thumb:hover{background:#2e3a52}
 
   /* ---------------- sidebar ---------------- */
@@ -27,14 +35,14 @@
   .logo b{font-size:18px;letter-spacing:.18em;background:linear-gradient(90deg,var(--accent),var(--accent2));
     -webkit-background-clip:text;background-clip:text;color:transparent}
   .logo .dot{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good)}
-  .seek{margin:0 14px 10px;display:flex;align-items:center;gap:8px;padding:8px 11px;background:#0c1019;
+  .seek{margin:0 14px 10px;display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--field);
     border:1px solid var(--line);border-radius:10px;color:var(--dim);font:12px/1 var(--mono);cursor:text}
-  .seek kbd{margin-left:auto;background:#1a2233;border:1px solid var(--line2);border-radius:5px;
+  .seek kbd{margin-left:auto;background:var(--btn);border:1px solid var(--line2);border-radius:5px;
     padding:2px 6px;font:11px/1 var(--mono);color:var(--dim)}
   nav{flex:1;overflow:auto;padding:4px 10px 14px}
   .nav-i{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:var(--dim);
     margin-bottom:2px;transition:.12s;border:1px solid transparent}
-  .nav-i:hover{background:#141a28;color:var(--ink)}
+  .nav-i:hover{background:var(--navh);color:var(--ink)}
   .nav-i.on{background:linear-gradient(90deg,rgba(106,208,255,.14),rgba(179,136,255,.1));
     color:var(--ink);border-color:rgba(106,208,255,.22)}
   .nav-i .ic{width:20px;text-align:center;font-size:15px}
@@ -56,7 +64,7 @@
   /* shared field bits */
   label.fl{display:block;font:11px/1 var(--mono);color:var(--dim);letter-spacing:.08em;
     text-transform:uppercase;margin:0 0 7px}
-  textarea,input[type=text],input[type=password],select{width:100%;background:#0c1019;color:var(--ink);
+  textarea,input[type=text],input[type=password],select{width:100%;background:var(--field);color:var(--ink);
     border:1px solid var(--line);border-radius:10px;padding:12px 13px;font:13px/1.6 var(--mono);
     outline:none;resize:vertical;transition:border .15s}
   textarea:focus,input:focus,select:focus{border-color:rgba(106,208,255,.5)}
@@ -64,9 +72,9 @@
   select{cursor:pointer;height:42px}
   .row{display:flex;gap:16px}.row>*{flex:1;min-width:0}
   .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
-  button.act{padding:8px 14px;border-radius:9px;border:1px solid var(--line2);background:#151c2b;
+  button.act{padding:8px 14px;border-radius:9px;border:1px solid var(--line2);background:var(--btn);
     color:var(--ink);font:600 12px/1 inherit;cursor:pointer;transition:.13s}
-  button.act:hover{background:#1c2740;border-color:rgba(106,208,255,.4);transform:translateY(-1px)}
+  button.act:hover{background:var(--btnh);border-color:rgba(106,208,255,.4);transform:translateY(-1px)}
   button.act.pri{background:linear-gradient(90deg,rgba(106,208,255,.85),rgba(179,136,255,.85));
     color:#08101c;border:0}
   button.act.pri:hover{filter:brightness(1.08)}
@@ -74,7 +82,7 @@
   .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);
     cursor:pointer;font:12px/1 var(--mono);color:var(--dim);user-select:none}
   .chip.on{background:rgba(106,208,255,.16);border-color:rgba(106,208,255,.4);color:var(--ink)}
-  .out{margin-top:14px;background:#0c1019;border:1px solid var(--line);border-radius:10px;
+  .out{margin-top:14px;background:var(--field);border:1px solid var(--line);border-radius:10px;
     padding:13px;font:13px/1.6 var(--mono);white-space:pre-wrap;word-break:break-word;min-height:46px;overflow:auto}
   .msg{font:12px/1.4 var(--mono);margin:8px 0 0}
   .msg.ok{color:var(--good)} .msg.err{color:var(--bad)} .msg.muted{color:var(--dim)}
@@ -102,7 +110,7 @@
   mark.alt{background:rgba(106,208,255,.22);color:var(--accent)}
 
   /* diff */
-  .diff{font:12.5px/1.55 var(--mono);background:#0c1019;border:1px solid var(--line);border-radius:10px;
+  .diff{font:12.5px/1.55 var(--mono);background:var(--field);border:1px solid var(--line);border-radius:10px;
     overflow:auto;max-height:60vh}
   .dl{display:flex;white-space:pre}
   .dl .gut{flex:0 0 46px;text-align:right;padding:1px 9px;color:var(--dim);
@@ -115,14 +123,14 @@
   /* hash grid */
   .kv{display:grid;grid-template-columns:120px 1fr;gap:1px;background:var(--line);border:1px solid var(--line);
     border-radius:10px;overflow:hidden;margin-top:12px}
-  .kv>div{background:#0c1019;padding:10px 13px;font:12.5px/1.5 var(--mono)}
+  .kv>div{background:var(--field);padding:10px 13px;font:12.5px/1.5 var(--mono)}
   .kv .key{color:var(--dim)} .kv .val{word-break:break-all;display:flex;justify-content:space-between;gap:10px}
   .copy{cursor:pointer;color:var(--dim);font-size:11px;opacity:0;transition:.12s}
   .kv .val:hover .copy,.cardv:hover .copy{opacity:1}
   .copy:hover{color:var(--accent)}
 
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
-  .card{background:#0c1019;border:1px solid var(--line);border-radius:10px;padding:13px 14px}
+  .card{background:var(--field);border:1px solid var(--line);border-radius:10px;padding:13px 14px}
   .card .ct{font:10px/1 var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
   .card .cardv{font:600 16px/1.4 var(--mono);word-break:break-all;display:flex;justify-content:space-between;gap:8px}
 
@@ -144,6 +152,44 @@
     background:#10243a;border:1px solid rgba(106,208,255,.4);color:var(--ink);padding:10px 18px;
     border-radius:10px;font:13px/1 var(--mono);opacity:0;transition:.25s;pointer-events:none;z-index:60}
   #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* footer controls */
+  .fbtns{display:flex;gap:8px;margin-top:11px}
+  .fbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;border-radius:8px;
+    border:1px solid var(--line);background:var(--btn);color:var(--dim);cursor:pointer;
+    font:11px/1 var(--mono);transition:.13s}
+  .fbtn:hover{color:var(--ink);border-color:var(--line2);transform:translateY(-1px)}
+  /* drag & drop overlay */
+  #drop{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;
+    background:rgba(8,14,26,.6);backdrop-filter:blur(3px);pointer-events:none}
+  #drop.on{display:flex}
+  #drop .box{border:2px dashed var(--accent);border-radius:18px;padding:36px 54px;background:var(--panel);
+    color:var(--ink);font:600 16px/1.5 var(--mono);text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+  #drop .box small{display:block;color:var(--dim);font-weight:400;margin-top:6px;font-size:12px}
+  /* help modal */
+  #help{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+    background:rgba(5,7,12,.6);backdrop-filter:blur(4px)}
+  #help.on{display:flex}
+  .helpbox{width:min(440px,92vw);background:var(--panel);border:1px solid var(--line2);border-radius:16px;
+    padding:22px 24px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+  .helpbox h3{margin:0 0 14px;font-size:16px}
+  .helpbox .hr{display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .helpbox .hr:last-child{border:0}
+  .helpbox kbd{background:var(--btn);border:1px solid var(--line2);border-radius:6px;
+    padding:3px 9px;font:12px/1 var(--mono);color:var(--ink);white-space:nowrap}
+  /* mobile */
+  @media (max-width:680px){
+    body{flex-direction:column;overflow:auto;height:auto;min-height:100%}
+    #side{width:100%;flex:none;border-right:0;border-bottom:1px solid var(--line)}
+    .seek{margin:0 14px 8px}
+    nav{display:flex;flex-wrap:nowrap;overflow-x:auto;padding:4px 10px 8px}
+    .nav-i{flex:0 0 auto;margin:0 3px 0 0} .nav-i .kb{display:none}
+    .foot{display:none}
+    main{height:auto;overflow:visible}
+    .head{padding:16px 18px 4px} .wrap{padding:14px 18px 34px}
+    .row{flex-direction:column}
+  }
 </style>
 </head>
 <body>
@@ -152,7 +198,12 @@
   <div class="logo"><span class="dot"></span><b>DEVKIT</b></div>
   <div class="seek" id="seek">⌘ ツール検索 / コマンド <kbd>⌘K</kbd></div>
   <nav id="nav"></nav>
-  <div class="foot">100% オフライン・ローカル保存<br>データは外部に送信されません</div>
+  <div class="foot">100% オフライン・ローカル保存<br>データは外部に送信されません
+    <div class="fbtns">
+      <button class="fbtn" id="theme-btn">🌙 テーマ</button>
+      <button class="fbtn" id="help-btn">⌨️ ヘルプ</button>
+    </div>
+  </div>
 </aside>
 
 <main>
@@ -166,6 +217,18 @@
 </div></div>
 
 <div id="toast"></div>
+
+<div id="drop"><div class="box">📂 ファイルをドロップして読み込み<small>いま開いているツールの入力欄に挿入します</small></div></div>
+
+<div id="help"><div class="helpbox">
+  <h3>⌨️ キーボードショートカット</h3>
+  <div class="hr"><span>コマンドパレットを開く</span><kbd>⌘K</kbd></div>
+  <div class="hr"><span>ツールを切り替え（1〜8番目）</span><kbd>⌘1 … ⌘8</kbd></div>
+  <div class="hr"><span>このヘルプを開く / 閉じる</span><kbd>?</kbd></div>
+  <div class="hr"><span>パレット・ヘルプを閉じる</span><kbd>Esc</kbd></div>
+  <div class="hr"><span>ファイルを読み込む</span><span style="color:var(--dim)">画面にドラッグ＆ドロップ</span></div>
+  <div class="hr"><span>テーマを切り替え</span><span style="color:var(--dim)">左下のテーマボタン</span></div>
+</div></div>
 
 <script>
 "use strict";
@@ -663,27 +726,36 @@ let activeId=null;
 
 TOOLS.forEach((t,i)=>{
   const item=el(`<div class="nav-i" data-id="${t.id}"><span class="ic">${t.icon}</span><span class="nm">${t.name}</span><span class="kb">⌘${i+1}</span></div>`);
-  item.onclick=()=>show(t.id); nav.appendChild(item);
+  item.onclick=()=>navigate(t.id); nav.appendChild(item);
   const p=el(`<div class="panel" id="panel-${t.id}"></div>`); p.innerHTML=t.html; wrap.appendChild(p);
 });
 
 const inited=new Set();
+let booted=false;
+// primary input of each tool — used for auto-focus on switch & drag-drop target
+const PRIMARY={json:'#j-in',jwt:'#w-in',regex:'#re-test',diff:'#d-a',encode:'#e-in',hash:'#h-in',time:'#t-in',cron:'#cr-in'};
+function focusPrimary(id){ const sel=PRIMARY[id]; if(!sel) return; const e=$(sel); if(e&&innerWidth>680) setTimeout(()=>e.focus(),40); }
 function show(id){
   const t=TOOLS.find(x=>x.id===id); if(!t) return; activeId=id; LS.set('active',id);
   $$('.nav-i').forEach(n=>n.classList.toggle('on',n.dataset.id===id));
   $$('.panel').forEach(p=>p.classList.toggle('on',p.id==='panel-'+id));
   $('#h-title').textContent=t.name; $('#h-desc').textContent=t.desc;
   if(!inited.has(id)){ try{ t.init(); }catch(e){ console.error(e); } inited.add(id); }
+  if(booted) focusPrimary(id);
 }
+// navigate via URL hash so back/forward & bookmarks work; hashchange drives show()
+function navigate(id){ if(location.hash.slice(1)===id) show(id); else location.hash=id; }
 
 /* ---------- command palette ---------- */
 const pal=$('#pal'),palIn=$('#pal-in'),palList=$('#pal-list'); let palSel=0,palItems=[];
 function openPal(){ pal.classList.add('on'); palIn.value=''; renderPal(''); palIn.focus(); }
 function closePal(){ pal.classList.remove('on'); }
 function renderPal(q){ q=q.toLowerCase();
-  const acts=[ ...TOOLS.map(t=>({icon:t.icon,nm:t.name,sub:t.desc,kw:t.keywords,run:()=>show(t.id)})),
-    {icon:'🆔',nm:'UUID を生成してコピー',sub:'hash',kw:'uuid guid',run:()=>{show('hash');setTimeout(()=>$('#h-uuid').click(),30);}},
-    {icon:'◷',nm:'現在の UNIX 時刻',sub:'time',kw:'now epoch time 現在',run:()=>{show('time');setTimeout(()=>$('#t-now').click(),30);}},
+  const acts=[ ...TOOLS.map(t=>({icon:t.icon,nm:t.name,sub:t.desc,kw:t.keywords,run:()=>navigate(t.id)})),
+    {icon:'🆔',nm:'UUID を生成してコピー',sub:'hash',kw:'uuid guid 乱数',run:()=>{navigate('hash');setTimeout(()=>$('#h-uuid').click(),60);}},
+    {icon:'◷',nm:'現在の UNIX 時刻',sub:'time',kw:'now epoch time 現在',run:()=>{navigate('time');setTimeout(()=>$('#t-now').click(),60);}},
+    {icon:'🌓',nm:'テーマを切り替え（ライト / ダーク）',sub:'theme',kw:'theme dark light テーマ 配色',run:()=>$('#theme-btn').click()},
+    {icon:'⌨️',nm:'ショートカット一覧を表示',sub:'help',kw:'help shortcut ヘルプ キー',run:openHelp},
   ];
   palItems=acts.filter(a=>!q|| (a.nm+a.sub+(a.kw||'')).toLowerCase().includes(q));
   palSel=0;
@@ -702,14 +774,47 @@ palIn.addEventListener('keydown',e=>{
 pal.addEventListener('click',e=>{ if(e.target===pal) closePal(); });
 $('#seek').onclick=openPal;
 
+/* ---------- theme ---------- */
+function applyTheme(t){ document.documentElement.setAttribute('data-theme',t);
+  const b=$('#theme-btn'); if(b) b.textContent=(t==='light'?'☀️ ライト':'🌙 ダーク'); }
+let theme=LS.get('theme', matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+applyTheme(theme);
+$('#theme-btn').onclick=()=>{ theme=(theme==='light'?'dark':'light'); LS.set('theme',theme); applyTheme(theme); };
+
+/* ---------- help modal ---------- */
+const help=$('#help');
+function openHelp(){ help.classList.add('on'); }
+function closeHelp(){ help.classList.remove('on'); }
+$('#help-btn').onclick=openHelp;
+help.addEventListener('click',e=>{ if(e.target===help) closeHelp(); });
+
+/* ---------- drag & drop file → active tool input ---------- */
+let dragDepth=0; const drop=$('#drop');
+addEventListener('dragenter',e=>{ if([...(e.dataTransfer?.types||[])].includes('Files')){ e.preventDefault(); dragDepth++; drop.classList.add('on'); } });
+addEventListener('dragover',e=>{ if([...(e.dataTransfer?.types||[])].includes('Files')) e.preventDefault(); });
+addEventListener('dragleave',()=>{ if(--dragDepth<=0){ dragDepth=0; drop.classList.remove('on'); } });
+addEventListener('drop',e=>{ e.preventDefault(); dragDepth=0; drop.classList.remove('on');
+  const f=e.dataTransfer?.files?.[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ const t=$(PRIMARY[activeId]); if(t){ t.value=String(r.result); t.dispatchEvent(new Event('input',{bubbles:true})); t.focus(); toast('読み込み: '+f.name); } };
+  r.readAsText(f);
+});
+
 /* ---------- global keys ---------- */
 addEventListener('keydown',e=>{
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); pal.classList.contains('on')?closePal():openPal(); return; }
-  if((e.metaKey||e.ctrlKey)&&/^[1-9]$/.test(e.key)){ const t=TOOLS[+e.key-1]; if(t){e.preventDefault();show(t.id);} }
-  if(e.key==='Escape') closePal();
+  if((e.metaKey||e.ctrlKey)&&/^[1-9]$/.test(e.key)){ const t=TOOLS[+e.key-1]; if(t){e.preventDefault();navigate(t.id);} return; }
+  if(e.key==='Escape'){ closePal(); closeHelp(); return; }
+  const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'');
+  if(e.key==='?'&&!typing){ e.preventDefault(); help.classList.contains('on')?closeHelp():openHelp(); }
 });
 
-show(LS.get('active','json'));
+/* ---------- boot: hash-aware routing ---------- */
+const startHash=location.hash.slice(1);
+const start=TOOLS.some(t=>t.id===startHash)?startHash:LS.get('active','json');
+history.replaceState(null,'','#'+start);
+show(start); booted=true;
+addEventListener('hashchange',()=>{ const id=location.hash.slice(1); if(TOOLS.some(t=>t.id===id)) show(id); });
 </script>
 </body>
 </html>
